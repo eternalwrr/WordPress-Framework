@@ -5,7 +5,7 @@ import com.lysenka.framework.pages.LoginPage;
 import com.lysenka.framework.util.ConfigReader;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 public class LoginTest extends BaseTest {
 
@@ -17,6 +17,9 @@ public class LoginTest extends BaseTest {
                         ConfigReader.getProperty("admin.username"),
                         ConfigReader.getProperty("admin.password")
                 );
-        assertNotNull(dashboardPage);
+        assertTrue(
+                dashboardPage.isOpened(),
+                "Dashboard Page is not opened after login"
+        );
     }
 }

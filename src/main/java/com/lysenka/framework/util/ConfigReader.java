@@ -38,4 +38,5 @@ public class ConfigReader {
         }
         return value.trim();
     }
+
 }

@@ -63,4 +63,15 @@ public class Browser {
             logger.info("Browser closed");
         }
     }
+
+    public static boolean waitUntilElementDisappears(By locator) {
+        int timeout = Integer.parseInt(
+                ConfigReader.getProperty("explicit.wait", "15")
+        );
+        WebDriverWait wait = new WebDriverWait(
+                getDriver(),
+                Duration.ofSeconds(timeout)
+        );
+        return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
 }
