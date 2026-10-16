@@ -1,10 +1,8 @@
 package com.lysenka.framework.pages;
 
 import com.lysenka.framework.webdriver.Browser;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 
 import java.nio.file.Path;
 

@@ -27,7 +27,5 @@ public class DashboardPage extends BasePage {
         return getMainMenu().isCommentsVisible();
     }
 
-    public boolean isUsersMenuVisible() {
-        return getMainMenu().isUsersVisible();
-    }
+    public boolean isUsersMenuVisible() { return getMainMenu().isUsersVisible(); }
 }

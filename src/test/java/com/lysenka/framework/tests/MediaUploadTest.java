@@ -38,12 +38,7 @@ public class MediaUploadTest extends BaseTest {
 
     @Test
     public void canUploadAndDeleteMediaFileTest() {
-        new LoginPage()
-                .open()
-                .login(
-                        ConfigReader.getProperty("admin.username"),
-                        ConfigReader.getProperty("admin.password")
-                );
+        loginAsAdmin();
         Path file = Path.of("src/test/resources/test-data/test-image.png");
         String fileName = file.getFileName().toString();
         MediaPage mediaPage = new MediaPage()

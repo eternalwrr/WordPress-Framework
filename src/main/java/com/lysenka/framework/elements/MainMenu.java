@@ -24,9 +24,7 @@ public class MainMenu {
         Browser.findVisibleElement(pages).click();
     }
 
-    public void openComments() {
-        Browser.findVisibleElement(comments).click();
-    }
+    public void openComments() {Browser.findVisibleElement(comments).click();}
 
     public void openUsers() {
         Browser.findVisibleElement(users).click();
