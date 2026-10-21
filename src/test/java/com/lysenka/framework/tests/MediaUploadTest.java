@@ -21,13 +21,10 @@ public class MediaUploadTest extends BaseTest {
                         ConfigReader.getProperty("admin.username"),
                         ConfigReader.getProperty("admin.password")
                 );
-
         assertTrue(dashboardPage.isOpened(), "Dashboard Page is not opened after login");
-
         new MediaPage()
                 .open()
                 .openUploadForm();
-
         assertTrue(Browser
                         .getDriver()
                         .getCurrentUrl()
@@ -39,7 +36,9 @@ public class MediaUploadTest extends BaseTest {
     @Test
     public void canUploadAndDeleteMediaFileTest() {
         loginAsAdmin();
-        Path file = Path.of("src/test/resources/test-data/test-image.png");
+        Path file = Path.of("src/test/resources/test-data/test-image.png")
+                .toAbsolutePath()
+                .normalize();
         String fileName = file.getFileName().toString();
         MediaPage mediaPage = new MediaPage()
                 .open()

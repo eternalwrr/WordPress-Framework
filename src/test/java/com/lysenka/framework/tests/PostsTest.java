@@ -1,6 +1,7 @@
 package com.lysenka.framework.tests;
 
 import com.lysenka.framework.pages.PostsPage;
+import com.lysenka.framework.webdriver.Browser;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
@@ -18,34 +19,38 @@ public class PostsTest extends BaseTest {
 
     @Test
     public void canEnterPostTitleAndContentTest() {
+        String title = "Post To Delete " + System.currentTimeMillis();
         loginAsAdmin();
         PostsPage postsPage = new PostsPage()
                 .open()
                 .openNewPostForm()
-                .enterTitle("This is a test title")
+                .enterTitle(title)
                 .enterContent("This is a test content");
         assertEquals(
-                postsPage.getTitle(), "This is a test title",
+                postsPage.getTitle(), title,
                 "Post title was not entered correctly"
         );
-        assertEquals(postsPage.getContent(),"This is test post content.",
+        assertEquals(postsPage.getContent(),"This is a test content",
                 "Post content was not entered correctly"
         );
     }
+
 
     @Test
     public void canPublishDraftPostTest() {
         loginAsAdmin();
         String postTitle = "Draft To Published " + System.currentTimeMillis();
+        registerPostForCleanup(postTitle);
         PostsPage postsPage = new PostsPage()
                 .open()
                 .openNewPostForm()
                 .enterTitle(postTitle)
-                .enterContent("Test content for draft post");
-        postsPage.saveDraft();
-        postsPage
+                .enterContent("Test content for draft post")
+                .saveDraft()
                 .openPostsList()
-                .changePostStatus(postTitle, "publish");
+                .openPostForEditing(postTitle)
+                .publish()
+                .openPostsList();
         String postStatus = postsPage.getPostStatus(postTitle);
         assertTrue(
                 postStatus.contains("status-publish"),
@@ -54,10 +59,12 @@ public class PostsTest extends BaseTest {
     }
 
 
+
     @Test
     public void canMovePublishedPostToDraftTest() {
         loginAsAdmin();
         String postTitle = "Published To Draft " + System.currentTimeMillis();
+        registerPostForCleanup(postTitle);
         PostsPage postsPage = new PostsPage()
                 .open()
                 .openNewPostForm()
@@ -81,7 +88,8 @@ public class PostsTest extends BaseTest {
 
     @Test
     public void canDeletePostTest() {
-        String title = "Post To Delete";
+        String title = "Post To Delete " + System.currentTimeMillis();
+        registerPostForCleanup(title);
         loginAsAdmin();
         PostsPage postsPage = new PostsPage()
                 .open()
@@ -90,6 +98,13 @@ public class PostsTest extends BaseTest {
                 .enterContent("This post will be deleted.")
                 .saveDraft()
                 .openPostsList();
+        System.out.println("Current URL: " +
+                Browser.getDriver().getCurrentUrl());
+
+        System.out.println("Post title: " + title);
+
+        System.out.println("Post exists: " +
+                postsPage.isPostPresent(title));
         assertTrue(
                 postsPage.isPostPresent(title),
                 "Post should exist before deletion"

@@ -50,6 +50,7 @@ public class PagesTest extends BaseTest {
     public void canPublishDraftPageTest() {
         loginAsAdmin();
         String pageTitle = "Draft To Published !!! " + System.currentTimeMillis();
+        registerPageForCleanup(pageTitle);
         PagesPage pagesPage = new PagesPage()
                 .open()
                 .openNewPageForm()
@@ -71,6 +72,7 @@ public class PagesTest extends BaseTest {
     public void canMovePublishedPageToDraftTest() {
         loginAsAdmin();
         String pageTitle = "Published To Draft " + System.currentTimeMillis();
+        registerPageForCleanup(pageTitle);
         PagesPage pagesPage = new PagesPage()
                 .open()
                 .openNewPageForm()

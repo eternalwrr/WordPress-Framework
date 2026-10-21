@@ -1,6 +1,5 @@
 package com.lysenka.framework.webdriver;
 
-
 import com.lysenka.framework.util.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,49 +17,85 @@ public class Browser {
     private static final Logger logger = LogManager.getLogger(Browser.class);
     private static WebDriver driver;
 
+    private Browser() {
+    }
+
     public static boolean isElementDisplayed(By locator) {
         try {
             return getDriver().findElement(locator).isDisplayed();
         } catch (NoSuchElementException e) {
+            logger.debug("Element not found: {}", locator);
             return false;
         }
-    }
-
-    private Browser() {
     }
 
     public static WebDriver getDriver() {
         if (driver == null) {
             BrowserType browserType = BrowserType.valueOf(
-                    ConfigReader.getProperty("browserType", "chrome").toUpperCase()
+                    ConfigReader.getProperty("browserType", "chrome")
+                            .toUpperCase()
             );
+            logger.debug("Initializing browser: {}", browserType);
             driver = BrowserFactory.createDriver(browserType);
-            int implicitWait = Integer.parseInt(
-                    ConfigReader.getProperty("implicit.wait", "10"));
-            driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWait));
+            driver.manage().timeouts().implicitlyWait(Duration.ZERO);
             logger.info("Browser started: {}", browserType);
         }
         return driver;
     }
 
     public static void open(String url) {
-        getDriver().get(url);
-        logger.info("Browser opened: {}", url);
+        logger.info("Opening URL: {}", url);
+
+        try {
+            getDriver().get(url);
+            logger.debug("URL opened successfully: {}", url);
+        } catch (RuntimeException e) {
+            logger.error("Failed to open URL: {}", url, e);
+            throw e;
+        }
     }
 
     public static WebElement findVisibleElement(By locator) {
         int timeout = Integer.parseInt(
                 ConfigReader.getProperty("explicit.wait", "15")
         );
-        WebDriverWait wait = new WebDriverWait(getDriver(), Duration.ofSeconds(timeout));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        logger.debug(
+                "Waiting up to {} seconds for visible element: {}",
+                timeout,
+                locator
+        );
+        WebDriverWait wait = new WebDriverWait(
+                getDriver(),
+                Duration.ofSeconds(timeout)
+        );
+
+        try {
+            WebElement element = wait.until(
+                    ExpectedConditions.visibilityOfElementLocated(locator)
+            );
+            logger.debug("Element is visible: {}", locator);
+            return element;
+        } catch (RuntimeException e) {
+            logger.error("Element did not become visible: {}", locator, e);
+            throw e;
+        }
     }
 
     public static void close() {
         if (driver != null) {
-            driver.quit();
-            driver = null;
-            logger.info("Browser closed");
+            logger.info("Closing browser");
+
+            try {
+                driver.quit();
+                logger.info("Browser closed successfully");
+            } catch (RuntimeException e) {
+                logger.error("Failed to close browser cleanly", e);
+                throw e;
+            } finally {
+                driver = null;
+            }
+        } else {
+            logger.debug("Browser is already closed");
         }
     }
 
@@ -68,10 +103,29 @@ public class Browser {
         int timeout = Integer.parseInt(
                 ConfigReader.getProperty("explicit.wait", "15")
         );
+        logger.debug(
+                "Waiting up to {} seconds for element to disappear: {}",
+                timeout,
+                locator
+        );
         WebDriverWait wait = new WebDriverWait(
                 getDriver(),
                 Duration.ofSeconds(timeout)
         );
-        return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+        boolean disappeared = wait.until(
+                ExpectedConditions.invisibilityOfElementLocated(locator)
+        );
+        logger.debug(
+                "Element disappearance result for {}: {}",
+                locator,
+                disappeared
+        );
+        return disappeared;
+    }
+
+    public static boolean isRemote() {
+        return "remote".equalsIgnoreCase(
+                ConfigReader.getProperty("executionMode", "local")
+        );
     }
 }
