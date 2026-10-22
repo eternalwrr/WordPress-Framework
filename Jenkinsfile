@@ -1,3 +1,4 @@
+
 pipeline {
     agent any
     options {
@@ -27,6 +28,11 @@ pipeline {
             junit(
                 testResults: '**/target/surefire-reports/*.xml',
                 allowEmptyResults: true
+            )
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'target/allure-results']]
             )
             archiveArtifacts(
                 artifacts: '**/target/allure-results/**',
