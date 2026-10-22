@@ -5,12 +5,14 @@ import com.lysenka.framework.pages.LoginPage;
 import com.lysenka.framework.pages.MediaPage;
 import com.lysenka.framework.util.ConfigReader;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Feature;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 
 import static org.testng.Assert.assertTrue;
 
+@Feature("Work with media")
 public class MediaUploadTest extends BaseTest {
 
     @Test

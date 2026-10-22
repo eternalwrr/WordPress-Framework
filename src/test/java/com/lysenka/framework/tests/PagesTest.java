@@ -1,14 +1,22 @@
 package com.lysenka.framework.tests;
 
 import com.lysenka.framework.pages.PagesPage;
+import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.Test;
+
+import java.time.Duration;
 
 import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
+@Feature("Pages management")
 public class PagesTest extends BaseTest {
 
     @Test
+    @Story("Opening new page form")
     public void canOpenNewPageFormTest() {
         loginAsAdmin();
         PagesPage pagesPage = new PagesPage()
@@ -18,6 +26,7 @@ public class PagesTest extends BaseTest {
     }
 
     @Test
+    @Story("Entering title")
     public void canEnterPageTitleTest() {
         loginAsAdmin();
 
@@ -33,6 +42,7 @@ public class PagesTest extends BaseTest {
     }
 
     @Test
+    @Story("Entering content")
     public void canEnterPageContentTest() {
         loginAsAdmin();
         String expectedContent = "this is a CONTENT";
@@ -45,11 +55,12 @@ public class PagesTest extends BaseTest {
         assertTrue(actualContent.contains(expectedContent), "Page content was not entered");
     }
 
-
     @Test
+    @Story("Publishing from draft")
     public void canPublishDraftPageTest() {
         loginAsAdmin();
-        String pageTitle = "Draft To Published !!! " + System.currentTimeMillis();
+        String pageTitle = "Draft To Published !!! "
+                + System.currentTimeMillis();
         registerPageForCleanup(pageTitle);
         PagesPage pagesPage = new PagesPage()
                 .open()
@@ -58,9 +69,8 @@ public class PagesTest extends BaseTest {
                 .enterTitle(pageTitle)
                 .enterContent("Test content for draft page");
         pagesPage.saveDraft();
-        pagesPage
-                .openPagesList()
-                .changePageStatus(pageTitle, "publish");
+        pagesPage.openPagesList();
+        pagesPage.publishDraftPage(pageTitle);
         String pageStatus = pagesPage.getPageStatus(pageTitle);
         assertTrue(
                 pageStatus.contains("status-publish"),
@@ -69,6 +79,7 @@ public class PagesTest extends BaseTest {
     }
 
     @Test
+    @Story("Drafting from publish")
     public void canMovePublishedPageToDraftTest() {
         loginAsAdmin();
         String pageTitle = "Published To Draft " + System.currentTimeMillis();
@@ -95,6 +106,7 @@ public class PagesTest extends BaseTest {
     }
 
     @Test
+    @Story("Page deletion")
     public void canDeletePageTest() {
         loginAsAdmin();
         String pageTitle = "Page To Delete " + System.currentTimeMillis();

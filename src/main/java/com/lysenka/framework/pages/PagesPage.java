@@ -1,7 +1,9 @@
+
 package com.lysenka.framework.pages;
 
 import com.lysenka.framework.util.ConfigReader;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -49,24 +51,28 @@ public class PagesPage extends BasePage {
         return row;
     }
 
+    @Step("Open WordPress pages")
     public PagesPage open() {
         logger.info("Opening WordPress pages");
         getMainMenu().openPages();
         return this;
     }
 
+    @Step("Open new page form")
     public PagesPage openNewPageForm() {
         logger.info("Opening new page form");
         Browser.findVisibleElement(addNewPageButton).click();
         return this;
     }
 
+    @Step("Check that page editor is opened")
     public boolean isEditorOpened() {
         boolean opened = Browser.findVisibleElement(pageEditor).isDisplayed();
         logger.debug("Page editor opened: {}", opened);
         return opened;
     }
 
+    @Step("Enter page title: {title}")
     public PagesPage enterTitle(String title) {
         logger.debug("Entering page title");
         WebDriver driver = Browser.getDriver();
@@ -78,6 +84,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Enter page content")
     public PagesPage enterContent(String content) {
         logger.debug("Entering page content");
         WebDriver driver = Browser.getDriver();
@@ -89,6 +96,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Get page title")
     public String getTitle() {
         WebDriver driver = Browser.getDriver();
         driver.switchTo().frame(0);
@@ -100,6 +108,7 @@ public class PagesPage extends BasePage {
         return title;
     }
 
+    @Step("Get page content")
     public String getContent() {
         WebDriver driver = Browser.getDriver();
         driver.switchTo().frame(0);
@@ -109,26 +118,45 @@ public class PagesPage extends BasePage {
         return content;
     }
 
+    @Step("Publish page")
     public PagesPage publish() {
         logger.info("Publishing page");
-        Browser.findVisibleElement(publishButton).click();
-        Browser.findVisibleElement(confirmPublishButton).click();
+        WebDriver driver = Browser.getDriver();
+        WebDriverWait wait = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(20)
+        );
+        wait.until(
+                org.openqa.selenium.support.ui.ExpectedConditions
+                        .elementToBeClickable(publishButton)
+        ).click();
+        wait.until(
+                org.openqa.selenium.support.ui.ExpectedConditions
+                        .elementToBeClickable(confirmPublishButton)
+        ).click();
+        wait.until(
+                org.openqa.selenium.support.ui.ExpectedConditions
+                        .invisibilityOfElementLocated(confirmPublishButton)
+        );
         logger.info("Page publication confirmation submitted");
         return this;
     }
 
+    @Step("Save page as draft")
     public PagesPage saveDraft() {
         logger.info("Saving page as draft");
         Browser.findVisibleElement(saveDraftButton).click();
         return this;
     }
 
+    @Step("Close page pattern modal")
     public PagesPage closePatternModal() {
         logger.debug("Closing page pattern modal");
         Browser.findVisibleElement(closePatternModalButton).click();
         return this;
     }
 
+    @Step("Change page '{title}' status to '{status}'")
     public PagesPage changePageStatus(String title, String status) {
         logger.info("Changing page status to: {}", status);
         WebDriver driver = Browser.getDriver();
@@ -179,6 +207,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Open pages list")
     public PagesPage openPagesList() {
         logger.debug("Opening pages list");
         String adminUrl = ConfigReader.getProperty("baseUrl");
@@ -186,6 +215,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Get status of page '{title}'")
     public String getPageStatus(String title) {
         logger.debug("Retrieving page status");
         WebDriver driver = Browser.getDriver();
@@ -213,6 +243,7 @@ public class PagesPage extends BasePage {
         return status;
     }
 
+    @Step("Move page '{title}' to trash")
     public PagesPage movePageToTrash(String title) {
         logger.info("Moving page to trash");
         WebDriver driver = Browser.getDriver();
@@ -232,6 +263,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Open pages trash")
     public PagesPage openTrash() {
         logger.debug("Opening pages trash");
         String adminUrl = ConfigReader.getProperty("baseUrl");
@@ -242,6 +274,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Permanently delete page '{title}'")
     public PagesPage deletePagePermanently(String title) {
         logger.info("Permanently deleting page");
         WebDriver driver = Browser.getDriver();
@@ -269,6 +302,7 @@ public class PagesPage extends BasePage {
         return this;
     }
 
+    @Step("Check whether page '{title}' is present")
     public boolean isPagePresent(String title) {
         boolean present = Browser.getDriver()
                 .findElements(pageRows)
@@ -276,5 +310,64 @@ public class PagesPage extends BasePage {
                 .anyMatch(row -> row.getText().contains(title));
         logger.debug("Page present in current list: {}", present);
         return present;
+    }
+
+    @Step("Open page '{title}' for editing")
+    public PagesPage openPageForEditing(String title) {
+        WebDriver driver = Browser.getDriver();
+        WebDriverWait wait = new WebDriverWait(
+                driver,
+                Duration.ofSeconds(15)
+        );
+        WebElement pageRow = wait.until(d ->
+                d.findElements(pageRows)
+                        .stream()
+                        .filter(row -> row.getText().contains(title))
+                        .findFirst()
+                        .orElse(null)
+        );
+        if (pageRow == null) {
+            throw new AssertionError("Page not found: " + title);
+        }
+        pageRow.findElement(By.cssSelector(".row-title")).click();
+        wait.until(
+                org.openqa.selenium.support.ui.ExpectedConditions
+                        .visibilityOfElementLocated(publishButton)
+        );
+        return this;
+    }
+
+    @Step("Open published page '{title}'")
+    public PagesPage openPublishedPage(String title) {
+        logger.info("Opening pages list and waiting for publication: {}", title);
+        openPagesList();
+        WebDriverWait wait = new WebDriverWait(
+                Browser.getDriver(),
+                Duration.ofSeconds(20)
+        );
+        wait.until(driver -> {
+            String status = getPageStatus(title);
+            boolean published = status.contains("status-publish");
+            logger.debug(
+                    "Current status for page '{}': {}",
+                    title,
+                    status
+            );
+            return published;
+        });
+        logger.info("Page publication verified: {}", title);
+        return this;
+    }
+
+    @Step("Publish draft page '{title}'")
+    public PagesPage publishDraftPage(String title) {
+        logger.info("Publishing draft page: {}", title);
+        openPageForEditing(title);
+        logger.debug("Draft page opened for editing: {}", title);
+        publish();
+        logger.debug("Publish action completed for page: {}", title);
+        openPublishedPage(title);
+        logger.info("Page successfully published: {}", title);
+        return this;
     }
 }

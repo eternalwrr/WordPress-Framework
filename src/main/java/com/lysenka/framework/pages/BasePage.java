@@ -2,6 +2,7 @@ package com.lysenka.framework.pages;
 
 import com.lysenka.framework.elements.MainMenu;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -16,6 +17,7 @@ public abstract class BasePage {
 
     private MainMenu mainMenu;
 
+    @Step("Initialize main menu")
     protected MainMenu getMainMenu() {
         if (mainMenu == null) {
             logger.debug("Initializing MainMenu");
@@ -24,6 +26,7 @@ public abstract class BasePage {
         return mainMenu;
     }
 
+    @Step("Find table row containing '{text}'")
     protected WebElement findRow(By rowsLocator, String text) {
         logger.debug("Searching for row containing: {}", text);
         WebDriverWait wait = new WebDriverWait(
@@ -40,5 +43,4 @@ public abstract class BasePage {
         logger.debug("Found row containing: {}", text);
         return row;
     }
-
 }

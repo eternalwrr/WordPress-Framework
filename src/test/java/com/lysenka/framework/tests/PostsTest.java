@@ -2,13 +2,17 @@ package com.lysenka.framework.tests;
 
 import com.lysenka.framework.pages.PostsPage;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.*;
 
+@Feature("Posts management")
 public class PostsTest extends BaseTest {
 
     @Test
+    @Story("Opening new post form")
     public void canOpenNewPostFormTest() {
         loginAsAdmin();
         PostsPage postsPage = new PostsPage()
@@ -18,6 +22,7 @@ public class PostsTest extends BaseTest {
     }
 
     @Test
+    @Story("Entering title and content")
     public void canEnterPostTitleAndContentTest() {
         String title = "Post To Delete " + System.currentTimeMillis();
         loginAsAdmin();
@@ -30,13 +35,13 @@ public class PostsTest extends BaseTest {
                 postsPage.getTitle(), title,
                 "Post title was not entered correctly"
         );
-        assertEquals(postsPage.getContent(),"This is a test content",
+        assertEquals(postsPage.getContent(), "This is a test content",
                 "Post content was not entered correctly"
         );
     }
 
-
     @Test
+    @Story("Publishing from draft")
     public void canPublishDraftPostTest() {
         loginAsAdmin();
         String postTitle = "Draft To Published " + System.currentTimeMillis();
@@ -58,9 +63,8 @@ public class PostsTest extends BaseTest {
         );
     }
 
-
-
     @Test
+    @Story("Drafting from published")
     public void canMovePublishedPostToDraftTest() {
         loginAsAdmin();
         String postTitle = "Published To Draft " + System.currentTimeMillis();
@@ -85,8 +89,8 @@ public class PostsTest extends BaseTest {
         );
     }
 
-
     @Test
+    @Story("Post deletion")
     public void canDeletePostTest() {
         String title = "Post To Delete " + System.currentTimeMillis();
         registerPostForCleanup(title);

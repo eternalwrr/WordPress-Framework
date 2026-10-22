@@ -1,7 +1,9 @@
+
 package com.lysenka.framework.pages;
 
 import com.lysenka.framework.util.ConfigReader;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -31,26 +33,28 @@ public class PostsPage extends BasePage {
     private final By trashPostLink = By.cssSelector(".row-actions .trash a");
     private final By deletePostButton = By.cssSelector("a.submitdelete");
     private final By viewPostLink = By.cssSelector(".row-actions .view a");
-    private final By savingIndicator = By.cssSelector(".editor-post-saving");
-    private final By savedIndicator = By.cssSelector(".editor-post-saved");
     private final By savedButton = By.xpath(
             "//button[.//span[normalize-space()='Saved'] or normalize-space()='Saved']"
     );
 
+    @Step("Open WordPress posts")
     public PostsPage open() {
         getMainMenu().openPosts();
         return this;
     }
 
+    @Step("Open new post form")
     public PostsPage openNewPostForm() {
         Browser.findVisibleElement(addNewPostButton).click();
         return this;
     }
 
+    @Step("Check that post editor is opened")
     public boolean isEditorOpened() {
         return Browser.findVisibleElement(postEditor).isDisplayed();
     }
 
+    @Step("Enter post title: {title}")
     public PostsPage enterTitle(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -71,6 +75,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Enter post content")
     public PostsPage enterContent(String content) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -95,6 +100,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Get post title")
     public String getTitle() {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -115,6 +121,7 @@ public class PostsPage extends BasePage {
         }
     }
 
+    @Step("Get post content")
     public String getContent() {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -135,6 +142,7 @@ public class PostsPage extends BasePage {
         }
     }
 
+    @Step("Publish post")
     public PostsPage publish() {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -155,6 +163,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Save post as draft")
     public PostsPage saveDraft() {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -171,8 +180,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
-
-
+    @Step("Open posts list")
     public PostsPage openPostsList() {
         String adminUrl = ConfigReader.getProperty("baseUrl")
                 .replaceAll("/+$", "");
@@ -188,6 +196,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Change post '{title}' status to '{status}'")
     public PostsPage changePostStatus(String title, String status) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -212,20 +221,12 @@ public class PostsPage extends BasePage {
         Select statusDropdown = new Select(
                 editRow.findElement(statusSelect)
         );
-
-        System.out.println("Available statuses:");
-        statusDropdown.getOptions().forEach(option ->
-                System.out.println(
-                        "Text: [" + option.getText() +
-                                "], value: [" + option.getAttribute("value") + "]"
-                )
-        );
-
         statusDropdown.selectByValue(status);
         editRow.findElement(quickEditUpdateButton).click();
         return this;
     }
 
+    @Step("Get status of post '{title}'")
     public String getPostStatus(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -251,6 +252,7 @@ public class PostsPage extends BasePage {
         });
     }
 
+    @Step("Move post '{title}' to trash")
     public PostsPage movePostToTrash(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -279,6 +281,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Open posts trash")
     public PostsPage openTrash() {
         String adminUrl = ConfigReader.getProperty("baseUrl")
                 .replaceAll("/+$", "");
@@ -295,6 +298,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Permanently delete post '{title}'")
     public PostsPage deletePostPermanently(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -330,6 +334,7 @@ public class PostsPage extends BasePage {
         return this;
     }
 
+    @Step("Check whether post '{title}' is present")
     public boolean isPostPresent(String title) {
         return Browser.getDriver()
                 .findElements(postRows)
@@ -337,6 +342,7 @@ public class PostsPage extends BasePage {
                 .anyMatch(row -> row.getText().contains(title));
     }
 
+    @Step("Get URL of post '{title}'")
     public String getPostUrl(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
@@ -356,6 +362,7 @@ public class PostsPage extends BasePage {
         return postRow.findElement(viewPostLink).getAttribute("href");
     }
 
+    @Step("Open post '{title}' for editing")
     public PostsPage openPostForEditing(String title) {
         WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(

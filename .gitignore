@@ -40,3 +40,9 @@ build/
 ### Mac OS ###
 .DS_Store
 /allure-results/
+
+.allure/
+allure-report/
+
+logs/
+/logs/

@@ -2,13 +2,17 @@ package com.lysenka.framework.tests;
 
 import com.lysenka.framework.pages.CommentsPage;
 import com.lysenka.framework.pages.PostsPage;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertTrue;
 
+@Feature("Comments management")
 public class CommentsTest extends BaseTest {
 
     @Test
+    @Story("Commented on published page")
     public void guestCanCommentOnPublishedPostTest() {
         loginAsAdmin();
 
@@ -39,6 +43,7 @@ public class CommentsTest extends BaseTest {
     }
 
     @Test
+    @Story("Finding comment in admin panel")
     public void guestCommentCanBeFoundInAdminTest() {
         loginAsAdmin();
         String postTitle = "Guest Comment Test " + System.currentTimeMillis();
@@ -71,6 +76,7 @@ public class CommentsTest extends BaseTest {
     }
 
     @Test
+    @Story("Comment deletion ")
     public void guestCommentCanBeMovedToTrashTest() {
         loginAsAdmin();
         String postTitle = "Trash Comment Test " + System.currentTimeMillis();
@@ -109,6 +115,7 @@ public class CommentsTest extends BaseTest {
     }
 
     @Test
+    @Story("Comment moving to spam")
     public void guestCommentCanBeMovedToSpamTest() {
         loginAsAdmin();
         String postTitle = "Trash Comment Test " + System.currentTimeMillis();
@@ -147,6 +154,7 @@ public class CommentsTest extends BaseTest {
     }
 
     @Test
+    @Story("Approving comment")
     public void guestCommentCanBeApprovedTest() {
         loginAsAdmin();
         String postTitle = "Trash Comment Test " + System.currentTimeMillis();

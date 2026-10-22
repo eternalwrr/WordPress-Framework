@@ -3,12 +3,15 @@ package com.lysenka.framework.tests;
 import com.lysenka.framework.pages.DashboardPage;
 import com.lysenka.framework.pages.LoginPage;
 import com.lysenka.framework.util.ConfigReader;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+@Feature("Menu accessibility")
 public class MenuAccessTest extends BaseTest {
 
     @DataProvider(name = "users")
@@ -43,6 +46,7 @@ public class MenuAccessTest extends BaseTest {
     }
 
     @Test(dataProvider = "users")
+    @Story("Menu accessibility for different roles of users")
     public void userShouldSeeAllowedMenuItems(
             String username,
             String password,

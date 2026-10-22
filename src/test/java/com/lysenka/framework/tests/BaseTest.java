@@ -5,6 +5,7 @@ import com.lysenka.framework.pages.PagesPage;
 import com.lysenka.framework.pages.PostsPage;
 import com.lysenka.framework.util.ConfigReader;
 import com.lysenka.framework.webdriver.Browser;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -30,6 +31,7 @@ public abstract class BaseTest {
         logger.debug("Test environment is ready");
     }
 
+    @Step("Log in as administrator")
     protected void loginAsAdmin() {
         logger.info("Logging in as administrator");
         new LoginPage()
@@ -41,11 +43,13 @@ public abstract class BaseTest {
         logger.info("Administrator login flow completed");
     }
 
+    @Step("Register post '{title}' for cleanup")
     protected void registerPostForCleanup(String title) {
         postsToCleanup.add(title);
         logger.debug("Registered post for cleanup: {}", title);
     }
 
+    @Step("Register page '{title}' for cleanup")
     protected void registerPageForCleanup(String title) {
         pagesToCleanup.add(title);
         logger.debug("Registered page for cleanup: {}", title);
@@ -76,6 +80,7 @@ public abstract class BaseTest {
         }
     }
 
+    @Step("Ensure administrator session is active")
     private void ensureAdminSession() {
         logger.debug("Checking administrator session");
         String baseUrl = ConfigReader.getProperty("baseUrl");
@@ -91,6 +96,7 @@ public abstract class BaseTest {
         }
     }
 
+    @Step("Clean up test posts")
     private void cleanupPosts() {
         PostsPage postsPage = new PostsPage();
         for (String title : postsToCleanup) {
@@ -113,6 +119,7 @@ public abstract class BaseTest {
         logger.info("Post cleanup finished");
     }
 
+    @Step("Clean up test pages")
     private void cleanupPages() {
         PagesPage pagesPage = new PagesPage();
         for (String title : pagesToCleanup) {
