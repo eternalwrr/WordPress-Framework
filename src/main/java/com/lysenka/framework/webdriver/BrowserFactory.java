@@ -17,17 +17,14 @@ import java.net.URL;
 
 public class BrowserFactory {
 
-    private static final Logger logger =
-            LogManager.getLogger(BrowserFactory.class);
+    private static final Logger logger = LogManager.getLogger(BrowserFactory.class);
 
-    private static final boolean HEADLESS =
-            ConfigReader.getProperty("headless", "false")
-                    .equalsIgnoreCase("true");
+    private static final boolean HEADLESS = ConfigReader
+            .getProperty("headless", "false")
+            .equalsIgnoreCase("true");
 
     public static WebDriver createDriver(BrowserType browserType) {
-        String executionMode =
-                ConfigReader.getProperty("executionMode", "local");
-
+        String executionMode = ConfigReader.getProperty("executionMode", "local");
         logger.info(
                 "Creating {} WebDriver in {} mode",
                 browserType,
@@ -106,7 +103,6 @@ public class BrowserFactory {
         );
 
         logger.info("Connecting to Selenium Grid: {}", gridUrl);
-
         try {
             WebDriver driver = new RemoteWebDriver(
                     new URL(gridUrl),

@@ -26,7 +26,7 @@ pipeline {
         }
         stage('Run Tests') {
             steps {
-                bat "mvn -B clean test -Dbrowser=${params.BROWSER}"
+                bat "mvn -B clean test -DbrowserType=${params.BROWSER}"
             }
         }
     }
