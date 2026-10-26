@@ -11,7 +11,7 @@ import static org.testng.Assert.assertTrue;
 @Feature("Comments management")
 public class CommentsTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"comments"})
     @Story("Commented on published page")
     public void guestCanCommentOnPublishedPostTest() {
         loginAsAdmin();
@@ -42,7 +42,7 @@ public class CommentsTest extends BaseTest {
 
     }
 
-    @Test
+    @Test(groups = {"comments"})
     @Story("Finding comment in admin panel")
     public void guestCommentCanBeFoundInAdminTest() {
         loginAsAdmin();
@@ -75,7 +75,7 @@ public class CommentsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"comments"})
     @Story("Comment deletion ")
     public void guestCommentCanBeMovedToTrashTest() {
         loginAsAdmin();
@@ -114,7 +114,7 @@ public class CommentsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"comments"})
     @Story("Comment moving to spam")
     public void guestCommentCanBeMovedToSpamTest() {
         loginAsAdmin();
@@ -153,7 +153,7 @@ public class CommentsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"comments"})
     @Story("Approving comment")
     public void guestCommentCanBeApprovedTest() {
         loginAsAdmin();

@@ -45,7 +45,10 @@ public class MenuAccessTest extends BaseTest {
         };
     }
 
-    @Test(dataProvider = "users")
+    @Test(
+            dataProvider = "users",
+            groups = {"menu"}
+    )
     @Story("Menu accessibility for different roles of users")
     public void userShouldSeeAllowedMenuItems(
             String username,

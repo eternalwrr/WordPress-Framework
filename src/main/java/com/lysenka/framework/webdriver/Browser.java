@@ -12,12 +12,39 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
-public class Browser {
+public final class Browser {
 
     private static final Logger logger = LogManager.getLogger(Browser.class);
-    private static WebDriver driver;
+
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
 
     private Browser() {
+    }
+
+    public static WebDriver getDriver() {
+        WebDriver driver = DRIVER.get();
+
+        if (driver == null) {
+            var browserType = com.lysenka.framework.webdriver.BrowserType
+                    .valueOf(
+                            ConfigReader.getProperty(
+                                    "browserType", "chrome"
+                            ).toUpperCase()
+                    );
+
+            logger.info("Initializing browser: {}", browserType);
+            driver = BrowserFactory.createDriver(browserType);
+            driver.manage().timeouts().implicitlyWait(Duration.ZERO);
+            DRIVER.set(driver);
+
+            logger.info("Browser started: {}", browserType);
+        }
+        return driver;
+    }
+
+    public static void open(String url) {
+        logger.info("Opening URL: {}", url);
+        getDriver().get(url);
     }
 
     public static boolean isElementDisplayed(By locator) {
@@ -29,98 +56,49 @@ public class Browser {
         }
     }
 
-    public static WebDriver getDriver() {
-        if (driver == null) {
-            BrowserType browserType = BrowserType.valueOf(
-                    ConfigReader.getProperty("browserType", "chrome")
-                            .toUpperCase()
-            );
-            logger.debug("Initializing browser: {}", browserType);
-            driver = BrowserFactory.createDriver(browserType);
-            driver.manage().timeouts().implicitlyWait(Duration.ZERO);
-            logger.info("Browser started: {}", browserType);
-        }
-        return driver;
-    }
-
-    public static void open(String url) {
-        logger.info("Opening URL: {}", url);
-
-        try {
-            getDriver().get(url);
-            logger.debug("URL opened successfully: {}", url);
-        } catch (RuntimeException e) {
-            logger.error("Failed to open URL: {}", url, e);
-            throw e;
-        }
-    }
-
     public static WebElement findVisibleElement(By locator) {
         int timeout = Integer.parseInt(
                 ConfigReader.getProperty("explicit.wait", "15")
-        );
-        logger.debug(
-                "Waiting up to {} seconds for visible element: {}",
-                timeout,
-                locator
         );
         WebDriverWait wait = new WebDriverWait(
                 getDriver(),
                 Duration.ofSeconds(timeout)
         );
-
-        try {
-            WebElement element = wait.until(
-                    ExpectedConditions.visibilityOfElementLocated(locator)
-            );
-            logger.debug("Element is visible: {}", locator);
-            return element;
-        } catch (RuntimeException e) {
-            logger.error("Element did not become visible: {}", locator, e);
-            throw e;
-        }
-    }
-
-    public static void close() {
-        if (driver != null) {
-            logger.info("Closing browser");
-
-            try {
-                driver.quit();
-                logger.info("Browser closed successfully");
-            } catch (RuntimeException e) {
-                logger.error("Failed to close browser cleanly", e);
-                throw e;
-            } finally {
-                driver = null;
-            }
-        } else {
-            logger.debug("Browser is already closed");
-        }
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(locator)
+        );
     }
 
     public static boolean waitUntilElementDisappears(By locator) {
         int timeout = Integer.parseInt(
                 ConfigReader.getProperty("explicit.wait", "15")
         );
-        logger.debug(
-                "Waiting up to {} seconds for element to disappear: {}",
-                timeout,
-                locator
-        );
+
         WebDriverWait wait = new WebDriverWait(
                 getDriver(),
                 Duration.ofSeconds(timeout)
         );
-        boolean disappeared = wait.until(
+
+        return wait.until(
                 ExpectedConditions.invisibilityOfElementLocated(locator)
         );
-        logger.debug(
-                "Element disappearance result for {}: {}",
-                locator,
-                disappeared
-        );
-        return disappeared;
+    }
+
+    public static void close() {
+        WebDriver driver = DRIVER.get();
+
+        try {
+            if (driver != null) {
+                logger.info("Closing browser");
+                driver.quit();
+                logger.info("Browser closed successfully");
+            }
+        } catch (RuntimeException e) {
+            logger.error("Failed to close browser", e);
+            throw e;
+        } finally {
+            DRIVER.remove();
+        }
     }
 
     public static boolean isRemote() {

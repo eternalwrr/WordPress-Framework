@@ -2,6 +2,7 @@ package com.lysenka.framework.pages;
 
 import com.lysenka.framework.webdriver.Browser;
 import com.lysenka.framework.util.ConfigReader;
+import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
@@ -27,34 +28,43 @@ public class CommentsPage extends BasePage {
     private final By trashButton = By.cssSelector(".row-actions .trash a");
     private final By approveButton = By.cssSelector(".row-actions .approve a");
     private final By unapproveButton = By.cssSelector(".row-actions .unapprove a");
-    private final By spamTab = By.cssSelector("ul.subsubsub li.spam a");
-    private final By approvedTab = By.cssSelector("ul.subsubsub li.approved a");
+
+    private final By spamTab =
+            By.cssSelector("ul.subsubsub li.spam a");
+    private final By approvedTab =
+            By.cssSelector("ul.subsubsub li.approved a");
+
     private final By commentBody = By.tagName("body");
 
+    @Step("Enter comment text")
     public CommentsPage enterComment(String comment) {
         logger.debug("Entering comment text");
         Browser.findVisibleElement(commentField).sendKeys(comment);
         return this;
     }
 
+    @Step("Enter comment author")
     public CommentsPage enterAuthor(String author) {
         logger.debug("Entering comment author");
         Browser.findVisibleElement(authorField).sendKeys(author);
         return this;
     }
 
+    @Step("Enter comment author email")
     public CommentsPage enterEmail(String email) {
         logger.debug("Entering comment author email");
         Browser.findVisibleElement(emailField).sendKeys(email);
         return this;
     }
 
+    @Step("Submit comment")
     public CommentsPage submitComment() {
         logger.info("Submitting comment");
         Browser.findVisibleElement(submitButton).click();
         return this;
     }
 
+    @Step("Open post for commenting")
     public CommentsPage openPost(String postUrl) {
         logger.info("Opening post for commenting: {}", postUrl);
         WebDriver driver = Browser.getDriver();
@@ -63,6 +73,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Check whether comment is visible on the page")
     public boolean isCommentVisible(String comment) {
         boolean visible = Browser.getDriver()
                 .findElement(commentBody)
@@ -72,28 +83,21 @@ public class CommentsPage extends BasePage {
         return visible;
     }
 
+    @Step("Open WordPress comments administration")
     public CommentsPage open() {
         logger.info("Opening WordPress comments administration");
-        Browser.open(ConfigReader.getProperty("baseUrl") + "/edit-comments.php");
+        Browser.open(
+                ConfigReader.getProperty("baseUrl") + "/edit-comments.php"
+        );
         return this;
     }
 
+    @Step("Check whether comment is present in the current list")
     public boolean isCommentPresent(String commentText) {
-        logger.debug("Checking whether comment is present in current list");
-        WebDriver driver = Browser.getDriver();
-        WebDriverWait wait = new WebDriverWait(
-                driver,
-                Duration.ofSeconds(10)
-        );
-        boolean present = wait.until(d ->
-                d.findElements(commentRows)
-                        .stream()
-                        .anyMatch(row -> row.getText().contains(commentText))
-        );
-        logger.debug("Comment present in current list: {}", present);
-        return present;
+        return waitForComment(commentText);
     }
 
+    @Step("Approve comment")
     public CommentsPage approveComment(String commentText) {
         logger.info("Approving comment");
         WebDriver driver = Browser.getDriver();
@@ -101,32 +105,23 @@ public class CommentsPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        WebElement row = wait.until(d ->
-                d.findElements(commentRows)
-                        .stream()
-                        .filter(comment -> comment.getText().contains(commentText))
-                        .findFirst()
-                        .orElse(null)
-        );
-        if (row == null) {
-            logger.error("Comment was not found in admin");
-            throw new AssertionError(
-                    "Comment was not found in admin: " + commentText
-            );
-        }
+        WebElement row = findRow(commentRows, commentText);
         if (!row.findElements(approveButton).isEmpty()) {
             WebElement approveLink = row.findElement(approveButton);
             String approveUrl = approveLink.getAttribute("href");
             if (approveUrl == null || approveUrl.isBlank()) {
                 logger.error("Approve URL was not found for comment");
                 throw new AssertionError(
-                        "Approve URL was not found for comment: " + commentText
+                        "Approve URL was not found for comment: "
+                                + commentText
                 );
             }
             driver.get(approveUrl);
             logger.info("Comment approval action submitted");
         } else if (row.findElements(unapproveButton).isEmpty()) {
-            logger.error("Neither Approve nor Unapprove action was found");
+            logger.error(
+                    "Neither Approve nor Unapprove action was found"
+            );
             throw new AssertionError(
                     "Neither Approve nor Unapprove action found for comment: "
                             + commentText
@@ -137,6 +132,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Open approved comments")
     public CommentsPage openApproved() {
         logger.info("Opening approved comments");
         WebDriver driver = Browser.getDriver();
@@ -150,7 +146,9 @@ public class CommentsPage extends BasePage {
         String approvedUrl = approvedLink.getAttribute("href");
         if (approvedUrl == null || approvedUrl.isBlank()) {
             logger.error("Approved comments tab URL was not found");
-            throw new AssertionError("Approved tab URL was not found");
+            throw new AssertionError(
+                    "Approved tab URL was not found"
+            );
         }
         driver.get(approvedUrl);
         wait.until(
@@ -163,6 +161,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Mark comment as spam")
     public CommentsPage markCommentAsSpam(String commentText) {
         logger.info("Marking comment as spam");
         WebDriver driver = Browser.getDriver();
@@ -170,19 +169,7 @@ public class CommentsPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        WebElement row = wait.until(d ->
-                d.findElements(commentRows)
-                        .stream()
-                        .filter(comment -> comment.getText().contains(commentText))
-                        .findFirst()
-                        .orElse(null)
-        );
-        if (row == null) {
-            logger.error("Comment was not found in admin");
-            throw new AssertionError(
-                    "Comment was not found in admin: " + commentText
-            );
-        }
+        WebElement row = findRow(commentRows, commentText);
         new Actions(driver).moveToElement(row).perform();
         WebElement spamLink = wait.until(d ->
                 row.findElements(spamButton)
@@ -201,6 +188,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Open spam comments")
     public CommentsPage openSpam() {
         logger.info("Opening spam comments");
         WebDriver driver = Browser.getDriver();
@@ -216,6 +204,7 @@ public class CommentsPage extends BasePage {
             logger.error("Spam tab URL was not found");
             throw new AssertionError("Spam tab URL was not found");
         }
+
         driver.get(spamUrl);
         wait.until(
                 ExpectedConditions.urlContains("comment_status=spam")
@@ -227,6 +216,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Move comment to trash")
     public CommentsPage moveCommentToTrash(String commentText) {
         logger.info("Moving comment to trash");
         WebDriver driver = Browser.getDriver();
@@ -234,19 +224,7 @@ public class CommentsPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        WebElement row = wait.until(d ->
-                d.findElements(commentRows)
-                        .stream()
-                        .filter(comment -> comment.getText().contains(commentText))
-                        .findFirst()
-                        .orElse(null)
-        );
-        if (row == null) {
-            logger.error("Comment was not found in admin");
-            throw new AssertionError(
-                    "Comment was not found in admin: " + commentText
-            );
-        }
+        WebElement row = findRow(commentRows, commentText);
         new Actions(driver).moveToElement(row).perform();
         WebElement trashLink = wait.until(d ->
                 row.findElements(trashButton)
@@ -265,6 +243,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Open trashed comments")
     public CommentsPage openTrash() {
         logger.info("Opening trashed comments");
         WebDriver driver = Browser.getDriver();
@@ -272,8 +251,8 @@ public class CommentsPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        String adminUrl = ConfigReader.getProperty("baseUrl");
-        adminUrl = adminUrl.replaceAll("/+$", "");
+        String adminUrl = ConfigReader.getProperty("baseUrl")
+                .replaceAll("/+$", "");
         if (adminUrl.endsWith("/wp-admin")) {
             adminUrl = adminUrl.substring(
                     0,
@@ -282,6 +261,7 @@ public class CommentsPage extends BasePage {
         }
         String trashUrl = adminUrl
                 + "/wp-admin/edit-comments.php?comment_status=trash";
+
         driver.get(trashUrl);
         wait.until(
                 ExpectedConditions.urlContains("comment_status=trash")
@@ -293,6 +273,7 @@ public class CommentsPage extends BasePage {
         return this;
     }
 
+    @Step("Wait for comment to appear in the current list")
     public boolean waitForComment(String commentText) {
         logger.debug("Waiting for comment to appear in current list");
         WebDriverWait wait = new WebDriverWait(
@@ -302,10 +283,11 @@ public class CommentsPage extends BasePage {
         boolean present = wait.until(driver ->
                 driver.findElements(commentRows)
                         .stream()
-                        .anyMatch(row -> row.getText().contains(commentText))
+                        .anyMatch(row ->
+                                row.getText().contains(commentText)
+                        )
         );
         logger.debug("Comment appeared in current list: {}", present);
         return present;
     }
-
 }
