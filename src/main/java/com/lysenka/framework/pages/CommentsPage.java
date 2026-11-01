@@ -28,11 +28,8 @@ public class CommentsPage extends BasePage {
     private final By trashButton = By.cssSelector(".row-actions .trash a");
     private final By approveButton = By.cssSelector(".row-actions .approve a");
     private final By unapproveButton = By.cssSelector(".row-actions .unapprove a");
-
-    private final By spamTab =
-            By.cssSelector("ul.subsubsub li.spam a");
-    private final By approvedTab =
-            By.cssSelector("ul.subsubsub li.approved a");
+    private final By spamTab = By.cssSelector("ul.subsubsub li.spam a");
+    private final By approvedTab = By.cssSelector("ul.subsubsub li.approved a");
 
     private final By commentBody = By.tagName("body");
 
