@@ -11,7 +11,7 @@ import static org.testng.Assert.*;
 @Feature("Posts management")
 public class PostsTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"posts"})
     @Story("Opening new post form")
     public void canOpenNewPostFormTest() {
         loginAsAdmin();
@@ -21,7 +21,7 @@ public class PostsTest extends BaseTest {
         assertTrue(postsPage.isEditorOpened(), "Post editor is not opened");
     }
 
-    @Test
+    @Test(groups = {"posts"})
     @Story("Entering title and content")
     public void canEnterPostTitleAndContentTest() {
         String title = "Post To Delete " + System.currentTimeMillis();
@@ -40,7 +40,7 @@ public class PostsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"posts"})
     @Story("Publishing from draft")
     public void canPublishDraftPostTest() {
         loginAsAdmin();
@@ -63,7 +63,7 @@ public class PostsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"posts"})
     @Story("Drafting from published")
     public void canMovePublishedPostToDraftTest() {
         loginAsAdmin();
@@ -89,7 +89,7 @@ public class PostsTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"posts"})
     @Story("Post deletion")
     public void canDeletePostTest() {
         String title = "Post To Delete " + System.currentTimeMillis();
@@ -102,13 +102,6 @@ public class PostsTest extends BaseTest {
                 .enterContent("This post will be deleted.")
                 .saveDraft()
                 .openPostsList();
-        System.out.println("Current URL: " +
-                Browser.getDriver().getCurrentUrl());
-
-        System.out.println("Post title: " + title);
-
-        System.out.println("Post exists: " +
-                postsPage.isPostPresent(title));
         assertTrue(
                 postsPage.isPostPresent(title),
                 "Post should exist before deletion"

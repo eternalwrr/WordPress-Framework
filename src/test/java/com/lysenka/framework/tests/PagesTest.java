@@ -15,7 +15,7 @@ import static org.testng.Assert.assertTrue;
 @Feature("Pages management")
 public class PagesTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Opening new page form")
     public void canOpenNewPageFormTest() {
         loginAsAdmin();
@@ -25,7 +25,7 @@ public class PagesTest extends BaseTest {
         assertTrue(pagesPage.isEditorOpened(), "Page Editor is not opened");
     }
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Entering title")
     public void canEnterPageTitleTest() {
         loginAsAdmin();
@@ -41,7 +41,7 @@ public class PagesTest extends BaseTest {
         assertTrue(pagesPage.getTitle().contains("this is a title"), "Page title was not entered");
     }
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Entering content")
     public void canEnterPageContentTest() {
         loginAsAdmin();
@@ -55,7 +55,7 @@ public class PagesTest extends BaseTest {
         assertTrue(actualContent.contains(expectedContent), "Page content was not entered");
     }
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Publishing from draft")
     public void canPublishDraftPageTest() {
         loginAsAdmin();
@@ -78,7 +78,7 @@ public class PagesTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Drafting from publish")
     public void canMovePublishedPageToDraftTest() {
         loginAsAdmin();
@@ -105,7 +105,7 @@ public class PagesTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"pages"})
     @Story("Page deletion")
     public void canDeletePageTest() {
         loginAsAdmin();

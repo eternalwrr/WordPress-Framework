@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+
+<suite name="WordPress Test Suite"
+       parallel="classes"
+       thread-count="2"
+       verbose="2">
+    <test name="WordPress Tests">
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <include name="comments"/>
+                <include name="pages"/>
+                <include name="posts"/>
+                <include name="media"/>
+                <include name="menu"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.lysenka.framework.tests.LoginTest"/>
+            <class name="com.lysenka.framework.tests.CommentsTest"/>
+            <class name="com.lysenka.framework.tests.PagesTest"/>
+            <class name="com.lysenka.framework.tests.PostsTest"/>
+            <class name="com.lysenka.framework.tests.MediaUploadTest"/>
+            <class name="com.lysenka.framework.tests.MenuAccessTest"/>
+        </classes>
+    </test>
+
+</suite>

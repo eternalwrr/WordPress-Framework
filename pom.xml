@@ -75,6 +75,11 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>
+                            src/test/resources/parallel-testng.xml
+                        </suiteXmlFile>
+                    </suiteXmlFiles>
                     <systemPropertyVariables>
                         <allure.results.directory>
                             ${project.build.directory}/allure-results

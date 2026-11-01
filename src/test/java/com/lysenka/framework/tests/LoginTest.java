@@ -12,7 +12,7 @@ import static org.testng.Assert.assertTrue;
 @Feature("Authorization")
 public class LoginTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"smoke"})
     @Story("Authorizing works correctly")
     public void adminCanLogin() {
         DashboardPage dashboardPage = new LoginPage()

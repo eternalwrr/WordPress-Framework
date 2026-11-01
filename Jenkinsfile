@@ -4,6 +4,13 @@ pipeline {
         timestamps()
         skipDefaultCheckout(true)
     }
+    parameters {
+        choice(
+            name: 'BROWSER',
+            choices: ['chrome', 'firefox'],
+            description: 'Select browser for test execution'
+        )
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -14,11 +21,12 @@ pipeline {
             steps {
                 bat 'java -version'
                 bat 'mvn -version'
+                bat 'echo Selected browser: %BROWSER%'
             }
         }
         stage('Run Tests') {
             steps {
-                bat 'mvn -B clean test'
+                bat "mvn -B clean test -DbrowserType=${params.BROWSER}"
             }
         }
     }
@@ -27,6 +35,12 @@ pipeline {
             junit(
                 testResults: '**/target/surefire-reports/*.xml',
                 allowEmptyResults: true
+            )
+
+            allure(
+                includeProperties: false,
+                jdk: '',
+                results: [[path: 'target/allure-results']]
             )
             archiveArtifacts(
                 artifacts: '**/target/allure-results/**',

@@ -15,7 +15,7 @@ import static org.testng.Assert.assertTrue;
 @Feature("Work with media")
 public class MediaUploadTest extends BaseTest {
 
-    @Test
+    @Test(groups = {"media"})
     public void canOpenMediaUploadTest() {
         DashboardPage dashboardPage = new LoginPage()
                 .open()
@@ -35,7 +35,7 @@ public class MediaUploadTest extends BaseTest {
         );
     }
 
-    @Test
+    @Test(groups = {"media"})
     public void canUploadAndDeleteMediaFileTest() {
         loginAsAdmin();
         Path file = Path.of("src/test/resources/test-data/test-image.png")

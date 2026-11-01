@@ -1,4 +1,3 @@
-
 package com.lysenka.framework.pages;
 
 import com.lysenka.framework.util.ConfigReader;
@@ -35,21 +34,6 @@ public class PagesPage extends BasePage {
     private final By quickEditUpdateButton = By.cssSelector(".inline-edit-save .button-primary");
     private final By trashButton = By.cssSelector("a.submitdelete");
     private final By quickEditButton = By.cssSelector("button.editinline, a.editinline");
-
-    private WebElement findPageRow(String title) {
-        logger.debug("Searching for page row");
-        WebElement row = Browser.getDriver()
-                .findElements(pageRows)
-                .stream()
-                .filter(element -> element.getText().contains(title))
-                .findFirst()
-                .orElseThrow(() -> {
-                    logger.error("Page not found");
-                    return new AssertionError("Page not found: " + title);
-                });
-        logger.debug("Page row found");
-        return row;
-    }
 
     @Step("Open WordPress pages")
     public PagesPage open() {
@@ -90,8 +74,9 @@ public class PagesPage extends BasePage {
         WebDriver driver = Browser.getDriver();
         driver.switchTo().frame(0);
         Browser.findVisibleElement(defaultBlockAppender).click();
-        WebElement contentField = Browser.findVisibleElement(pageContentField);
-        contentField.sendKeys(content);
+        WebElement contentElement =
+                Browser.findVisibleElement(pageContentField);
+        contentElement.sendKeys(content);
         driver.switchTo().defaultContent();
         return this;
     }
@@ -164,13 +149,7 @@ public class PagesPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        WebElement pageRow = wait.until(d ->
-                d.findElements(pageRows)
-                        .stream()
-                        .filter(row -> row.getText().contains(title))
-                        .findFirst()
-                        .orElse(null)
-        );
+        WebElement pageRow = findRow(pageRows, title);
         ((org.openqa.selenium.JavascriptExecutor) driver)
                 .executeScript(
                         "arguments[0].scrollIntoView({block: 'center'});",
@@ -179,7 +158,9 @@ public class PagesPage extends BasePage {
         new Actions(driver).moveToElement(pageRow).perform();
         WebElement editButton = wait.until(
                 org.openqa.selenium.support.ui.ExpectedConditions
-                        .elementToBeClickable(pageRow.findElement(quickEditButton))
+                        .elementToBeClickable(
+                                pageRow.findElement(quickEditButton)
+                        )
         );
         editButton.click();
         WebElement editRow = wait.until(
@@ -193,8 +174,8 @@ public class PagesPage extends BasePage {
                 org.openqa.selenium.support.ui.ExpectedConditions
                         .invisibilityOfElementLocated(quickEditRow)
         );
-        wait.until(d ->
-                d.findElements(pageRows)
+        wait.until(driver1 ->
+                driver1.findElements(pageRows)
                         .stream()
                         .filter(row -> row.getText().contains(title))
                         .anyMatch(row -> {
@@ -218,13 +199,12 @@ public class PagesPage extends BasePage {
     @Step("Get status of page '{title}'")
     public String getPageStatus(String title) {
         logger.debug("Retrieving page status");
-        WebDriver driver = Browser.getDriver();
         WebDriverWait wait = new WebDriverWait(
-                driver,
+                Browser.getDriver(),
                 Duration.ofSeconds(10)
         );
-        String status = wait.until(d -> {
-            WebElement pageRow = d.findElements(pageRows)
+        String status = wait.until(driver -> {
+            WebElement pageRow = driver.findElements(pageRows)
                     .stream()
                     .filter(row -> row.getText().contains(title))
                     .findFirst()
@@ -233,8 +213,9 @@ public class PagesPage extends BasePage {
                 return null;
             }
             String classes = pageRow.getAttribute("class");
-            if (classes.contains("status-publish")
-                    || classes.contains("status-draft")) {
+            if (classes != null
+                    && (classes.contains("status-publish")
+                    || classes.contains("status-draft"))) {
                 return classes;
             }
             return null;
@@ -247,7 +228,7 @@ public class PagesPage extends BasePage {
     public PagesPage movePageToTrash(String title) {
         logger.info("Moving page to trash");
         WebDriver driver = Browser.getDriver();
-        WebElement pageRow = findPageRow(title);
+        WebElement pageRow = findRow(pageRows, title);
         ((org.openqa.selenium.JavascriptExecutor) driver)
                 .executeScript(
                         "arguments[0].scrollIntoView({block: 'center'});",
@@ -258,6 +239,12 @@ public class PagesPage extends BasePage {
                 By.cssSelector(".row-actions .trash a")
         );
         String trashUrl = trashLink.getAttribute("href");
+        if (trashUrl == null || trashUrl.isBlank()) {
+            logger.error("Trash URL was not found for page: {}", title);
+            throw new AssertionError(
+                    "Trash URL was not found for page: " + title
+            );
+        }
         driver.get(trashUrl);
         logger.info("Page moved to trash");
         return this;
@@ -269,7 +256,8 @@ public class PagesPage extends BasePage {
         String adminUrl = ConfigReader.getProperty("baseUrl");
         Browser.getDriver().get(
                 adminUrl
-                        + "/edit.php?post_status=trash&post_type=page&orderby=date&order=desc"
+                        + "/edit.php?post_status=trash&post_type=page"
+                        + "&orderby=date&order=desc"
         );
         return this;
     }
@@ -282,15 +270,9 @@ public class PagesPage extends BasePage {
                 driver,
                 Duration.ofSeconds(10)
         );
-        WebElement pageRow = wait.until(d ->
-                d.findElements(pageRows)
-                        .stream()
-                        .filter(row -> row.getText().contains(title))
-                        .findFirst()
-                        .orElse(null)
-        );
+        WebElement pageRow = findRow(pageRows, title);
         new Actions(driver).moveToElement(pageRow).perform();
-        WebElement deleteLink = wait.until(d ->
+        WebElement deleteLink = wait.until(driver1 ->
                 pageRow.findElements(trashButton)
                         .stream()
                         .filter(WebElement::isDisplayed)
@@ -319,27 +301,22 @@ public class PagesPage extends BasePage {
                 driver,
                 Duration.ofSeconds(15)
         );
-        WebElement pageRow = wait.until(d ->
-                d.findElements(pageRows)
-                        .stream()
-                        .filter(row -> row.getText().contains(title))
-                        .findFirst()
-                        .orElse(null)
-        );
-        if (pageRow == null) {
-            throw new AssertionError("Page not found: " + title);
-        }
+        WebElement pageRow = findRow(pageRows, title);
         pageRow.findElement(By.cssSelector(".row-title")).click();
         wait.until(
                 org.openqa.selenium.support.ui.ExpectedConditions
                         .visibilityOfElementLocated(publishButton)
         );
+        logger.info("Page opened for editing: {}", title);
         return this;
     }
 
     @Step("Open published page '{title}'")
     public PagesPage openPublishedPage(String title) {
-        logger.info("Opening pages list and waiting for publication: {}", title);
+        logger.info(
+                "Opening pages list and waiting for publication: {}",
+                title
+        );
         openPagesList();
         WebDriverWait wait = new WebDriverWait(
                 Browser.getDriver(),
@@ -347,7 +324,8 @@ public class PagesPage extends BasePage {
         );
         wait.until(driver -> {
             String status = getPageStatus(title);
-            boolean published = status.contains("status-publish");
+            boolean published = status != null
+                    && status.contains("status-publish");
             logger.debug(
                     "Current status for page '{}': {}",
                     title,

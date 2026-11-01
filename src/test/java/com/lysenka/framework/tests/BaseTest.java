@@ -58,6 +58,7 @@ public abstract class BaseTest {
     @AfterMethod(alwaysRun = true)
     public void tearDown() {
         logger.info("Starting test cleanup");
+
         try {
             if (!postsToCleanup.isEmpty() || !pagesToCleanup.isEmpty()) {
                 ensureAdminSession();
@@ -83,10 +84,13 @@ public abstract class BaseTest {
     @Step("Ensure administrator session is active")
     private void ensureAdminSession() {
         logger.debug("Checking administrator session");
+
         String baseUrl = ConfigReader.getProperty("baseUrl");
         Browser.getDriver().get(baseUrl);
+
         if (Browser.isElementDisplayed(By.id("user_login"))) {
             logger.info("Administrator session is not active; logging in");
+
             new LoginPage().login(
                     ConfigReader.getProperty("admin.username"),
                     ConfigReader.getProperty("admin.password")
@@ -99,46 +103,46 @@ public abstract class BaseTest {
     @Step("Clean up test posts")
     private void cleanupPosts() {
         PostsPage postsPage = new PostsPage();
+
         for (String title : postsToCleanup) {
             logger.info("Cleaning up post: {}", title);
+
             postsPage.openPostsList();
+
             if (postsPage.isPostPresent(title)) {
-                logger.debug("Moving post to trash: {}", title);
                 postsPage.movePostToTrash(title);
-            } else {
-                logger.debug("Post not found in posts list: {}", title);
             }
+
             postsPage.openTrash();
+
             if (postsPage.isPostPresent(title)) {
-                logger.debug("Deleting post permanently: {}", title);
                 postsPage.deletePostPermanently(title);
-            } else {
-                logger.debug("Post not found in trash: {}", title);
             }
         }
+
         logger.info("Post cleanup finished");
     }
 
     @Step("Clean up test pages")
     private void cleanupPages() {
         PagesPage pagesPage = new PagesPage();
+
         for (String title : pagesToCleanup) {
             logger.info("Cleaning up page: {}", title);
+
             pagesPage.openPagesList();
+
             if (pagesPage.isPagePresent(title)) {
-                logger.debug("Moving page to trash: {}", title);
                 pagesPage.movePageToTrash(title);
-            } else {
-                logger.debug("Page not found in pages list: {}", title);
             }
+
             pagesPage.openTrash();
+
             if (pagesPage.isPagePresent(title)) {
-                logger.debug("Deleting page permanently: {}", title);
                 pagesPage.deletePagePermanently(title);
-            } else {
-                logger.debug("Page not found in trash: {}", title);
             }
         }
+
         logger.info("Page cleanup finished");
     }
 }
